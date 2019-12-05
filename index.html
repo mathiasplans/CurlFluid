@@ -80,6 +80,10 @@
           uniforms: {
             positionMap: {
               value: target[1].texture
+            },
+
+            size: {
+              value: size
             }
           },
           vertexShader: particleVertexShader,
@@ -134,6 +138,15 @@
 
         var quadGeometry = new THREE.PlaneBufferGeometry(size, size);
 
+        var uvCoord = new Float32Array([
+          0,    size,
+          size, size,
+          0,    0,
+          size, 0
+        ]);
+
+        quadGeometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
+
         var quad = new THREE.Mesh(quadGeometry, quadMaterial);
 
         // Camera
@@ -182,13 +195,19 @@
     </script>
 
     <script id="particleVert" type="x-shader/x-vertex">
+      uniform float size;
+      uniform sampler2D positionMap;
+
       out vec3 interpolatedPosition; //We interpolate the position
       out vec3 interpolatedNormal;   //We interpolate the normal
       out vec3 interpolatedLocalPosition;
 
       void main() {
-        interpolatedLocalPosition = position;
-        interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; //Replace these 2 lines
+        // Add the offset to the position
+        vec2 uvCoord = vec2(position.x / size + 0.5, position.y / size + 0.5);
+        position += texture(positionMap, uvCoord);
+
+        interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
         interpolatedNormal = normalize(normalMatrix * normal).xyz;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -198,9 +217,10 @@
     <script id="particleFrag" type="x-shader/x-fragment">
       in vec3 interpolatedLocalPosition;
       in vec3 interpolatedPosition;
-      in vec3 interpolatedNormal;
+
 
       void main() {
+        // TODO: Read the color of the particle from a texture
 
         gl_Color = vec4(1.0);
       }
@@ -210,17 +230,22 @@
       out vec3 interpolatedPosition;
       out vec3 interpolatedNormal;
       out vec3 interpolatedLocalPosition;
+      out vec2 interpolatedUV;
 
       void main() {
         interpolatedLocalPosition = position;
         interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; //Replace these 2 lines
         interpolatedNormal = normalize(normalMatrix * normal).xyz;
 
+        interpolatedUV = uvCoord;
+
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     </script>
 
     <script id="curlFrag" type="x-shader/x-fragment">
+      uniform sampler2D previousFrame;
+
       in vec3 interpolatedLocalPosition;
       in vec3 interpolatedPosition;
       in vec3 interpolatedNormal;
@@ -324,15 +349,34 @@
           }
         }
 
+        const float normalization = 37.837227241611314102871574478976;
+
         // ~[-1.0, 1.0]
-        return (32.0 * (n[0] + n[1] + n[2] + n[3]));
+        return (normalization * (n[0] + n[1] + n[2] + n[3]));
+      }
+
+      vec3 curlNoise(in vec3 p) {
+        // Get the noise on p coords
+        float origin = noise(p);
+
+        // Get the noise on p + dx coords
+        float d = 1.0 / 1000.0;
+        float xDeriv = origin - noise(p + vec3(d, 0.0, 0.0));
+
+        // Get the noide on p + dy coords
+        float yDeriv = origin - noise(p + vec3(0.0, d, 0.0));
+
+        return vec3(yDeriv / d, -xDerive / d, 0.0);
       }
 
       void main() {
-        // TODO: calculate Curl Noise, then add it onto the previous value.
-        // This way, we add the two vectors together, getting the final destination
+        // Get the current position in the position map
+        vec3 current = texture(previousFrame, interpolatedUV);
 
-        gl_FragColor = vec4(1.0);
+        // Add the curl to it
+        current += curlNoise(interpolatedLocalPosition + current);
+
+        gl_FragColor = vec4(current, 1.0);
       }
     </script>
 
