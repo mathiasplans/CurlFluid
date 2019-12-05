@@ -8,7 +8,8 @@
     <script type="text/javascript">
       var size = 800;
 
-      var camera;
+      var curlCamera;
+      var particleCamera;
       var particleScene;
       var curlScene;
       var particleRenderer;
@@ -62,15 +63,16 @@
         // Renderer for particles
         particleRenderer = new THREE.WebGLRenderer({
           canvas: canvas,
-          context: context,
-          preserveDrawingBuffer: true
+          context: context//,
+          //preserveDrawingBuffer: true
         });
 
-        particleRenderer.autoClear = false;
+        //particleRenderer.autoClear = false;
         particleRenderer.setSize(size, size);
 
         // Renderer for position textures
         curlRenderer = new THREE.WebGLRenderer({
+          canvas: canvas,
           context: context
         });
 
@@ -90,36 +92,29 @@
           fragmentShader: particleFragmentShader
         });
 
-        var particleGeometry = new THREE.BufferGeometry();
-
-        // Let the particles be squares which fit into one pixel
         var pc = 1 / size;
-        var vertices = new Float32Array([
-          -pc, -pc,  pc,
-           pc, -pc,  pc,
-           pc,  pc,  pc,
-
-           pc,  pc,  pc,
-          -pc,  pc,  pc,
-          -pc, -pc,  pc
-        ]);
-
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        var particleGeometry = new THREE.PlaneBufferGeometry(pc, pc);
 
         // Array of particles
         var particles = [];
 
         // Create lots of particles
-        for (var i = 0; i < size; ++i) {
-          for (var j = 0; j < size; ++j) {
+        for (var i = 0; i < size / 4; ++i) {
+          for (var j = 0; j < size / 4; ++j) {
             var particle = new THREE.Mesh(particleGeometry, particleMaterial);
-            particle.positon.set(i - size / 2, j - size / 2, 0);
+            particle.position.set(i - 4 * size / 2, j - 4 * size / 2, 0);
 
             // TODO: Set the color
 
             particles.push(particle);
           }
         }
+        //var particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        //particle.position.set(0, 0, 0);
+
+        //// TODO: Set the color
+
+        //particles.push(particle);
 
         // Particle position calculation
         quadMaterial = new THREE.ShaderMaterial({
@@ -131,37 +126,48 @@
             time: {
               value: 0
             },
+
+            size: {
+              value: size
+            }
           },
           vertexShader: curlVertexShader,
           fragmentShader: curlFragmentShader
         });
 
         var quadGeometry = new THREE.PlaneBufferGeometry(size, size);
+        console.log(quadGeometry);
 
-        var uvCoord = new Float32Array([
-          0,    size,
-          size, size,
-          0,    0,
-          size, 0
-        ]);
+//        var uvCoord = new Float32Array([
+//          0,    size,
+//          size, size,
+//          0,    0,
+//          size, 0
+//        ]);
 
-        quadGeometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
+//        quadGeometry.addAttribute("uvCoord", new THREE.BufferAttribute(uvCoord, 2));
 
         var quad = new THREE.Mesh(quadGeometry, quadMaterial);
 
         // Camera
-        camera = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 0.1, 10);
-        camera.position.set(0, 0, 4);
-        camera.lookAt(quad.position);
-        camera.up.set(0, 1, 0);
+        curlCamera = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 0.1, 10);
+        curlCamera.position.set(0, 0, 4);
+        curlCamera.lookAt(quad.position);
+        curlCamera.up.set(0, 1, 0);
+
+        particleCamera = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 0.1, 10);
+        particleCamera.position.set(0, 0, 4);
+        particleCamera.lookAt(quad.position);
+        particleCamera.up.set(0, 1, 0);
 
         // Scenes
         curlScene = new THREE.Scene();
         curlScene.add(quad);
+        curlScene.add(curlCamera);
 
         particleScene = new THREE.Scene();
-        particleScene.add(camera);
-        for (var p in particles) {
+        particleScene.add(particleCamera);
+        for (var p of particles) {
           particleScene.add(p);
         }
 
@@ -178,19 +184,20 @@
 
         /* Position map */
         // Swap between the two textures.
-        curlRenderer.setRenderTarget(target[parity]);
-        curlMaterial.uniforms.previousFrame.value = target[1 - parity].texture;
-        curlMaterial.uniforms.time.value = 0;
+        //curlRenderer.setRenderTarget(target[parity]);
+        quadMaterial.uniforms.previousFrame.value = target[1 - parity].texture;
+        quadMaterial.uniforms.time.value = 0;
+        curlRenderer.setRenderTarget(null);
 
         // Render the position map
-        curlRenderer.render(curlScene, camera);
+        curlRenderer.render(curlScene, curlCamera);
 
         /* Particles */
         // Now that we have the position map, we can move the particles according to it
-        particleMaterial.uniforms.positionMap.value = target[parity];
+        particleMaterial.uniforms.positionMap.value = target[parity].texture;
 
         // Render the particles onto the screen
-        particleRenderer.render(particleScene, camera);
+        //particleRenderer.render(particleScene, particleCamera);
       }
     </script>
 
@@ -204,13 +211,13 @@
 
       void main() {
         // Add the offset to the position
-        vec2 uvCoord = vec2(position.x / size + 0.5, position.y / size + 0.5);
-        position += texture(positionMap, uvCoord);
+        vec2 uvCoord = vec2(position.x / size, position.y / size);
+        vec3 translated = texture(positionMap, uvCoord).xyz;
 
-        interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+        interpolatedPosition = (modelViewMatrix * vec4(translated, 1.0)).xyz;
         interpolatedNormal = normalize(normalMatrix * normal).xyz;
 
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(translated, 1.0);
       }
     </script>
 
@@ -222,7 +229,7 @@
       void main() {
         // TODO: Read the color of the particle from a texture
 
-        gl_Color = vec4(1.0);
+        gl_FragColor = vec4(interpolatedLocalPosition, 1.0);
       }
     </script>
 
@@ -230,14 +237,11 @@
       out vec3 interpolatedPosition;
       out vec3 interpolatedNormal;
       out vec3 interpolatedLocalPosition;
-      out vec2 interpolatedUV;
 
       void main() {
         interpolatedLocalPosition = position;
-        interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz; //Replace these 2 lines
+        interpolatedPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
         interpolatedNormal = normalize(normalMatrix * normal).xyz;
-
-        interpolatedUV = uvCoord;
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
@@ -245,6 +249,7 @@
 
     <script id="curlFrag" type="x-shader/x-fragment">
       uniform sampler2D previousFrame;
+      uniform float size;
 
       in vec3 interpolatedLocalPosition;
       in vec3 interpolatedPosition;
@@ -355,28 +360,83 @@
         return (normalization * (n[0] + n[1] + n[2] + n[3]));
       }
 
-      vec3 curlNoise(in vec3 p) {
-        // Get the noise on p coords
-        float origin = noise(p);
+      float noise(in vec2 p) {
+        return noise(vec3(p, 0.0));
+      }
 
-        // Get the noise on p + dx coords
-        float d = 1.0 / 1000.0;
-        float xDeriv = origin - noise(p + vec3(d, 0.0, 0.0));
+      /**
+       * Calculates derivative of the noise (on 2D slice)
+       */
+      vec2 dnoise2(in vec3 p) {
+        // Coordinates
+        vec2 coord = p.xy;
 
-        // Get the noide on p + dy coords
-        float yDeriv = origin - noise(p + vec3(0.0, d, 0.0));
+        // Delta
+        float delta = 1.0 / 100000.0;
+        float freq = 1.0;
 
-        return vec3(yDeriv / d, -xDerive / d, 0.0);
+        float o = noise(freq * coord);
+
+        // Dn/Dx
+        //float x1 = noise(freq * (coord - vec2(delta, 0.0)));
+        float x1 = o;
+        float x2 = noise(freq * (coord + vec2(delta, 0.0)));
+        float dx = (x2 - x1) / delta / 2.0;
+
+        // Dn/Dy
+//        float y1 = noise(freq * (coord - vec2(0.0, delta)));
+        float y1 = o;
+        float y2 = noise(freq * (coord + vec2(0.0, delta)));
+        float dy = (y2 - y1) / delta / 2.0;
+
+        return vec2(dx, dy);
+      }
+
+      vec3 dnoise3(in vec3 p) {
+        // Coordinates
+        vec3 coord = p;
+
+        // Delta
+        float delta = 1.0 / 10000.0;
+
+        // Dn/Dx
+        float x1 = noise(coord - vec3(delta, 0.0, 0.0));
+        float x2 = noise(coord + vec3(delta, 0.0, 0.0));
+        float dx = (x2 - x1) / delta;
+
+        // Dn/Dy
+        float y1 = noise(coord - vec3(0.0, delta, 0.0));
+        float y2 = noise(coord + vec3(0.0, delta, 0.0));
+        float dy = (y2 - y1) / delta;
+
+        // Dn/Dz
+        float z1 = noise(coord - vec3(0.0, 0.0, delta));
+        float z2 = noise(coord + vec3(0.0, 0.0, delta));
+        float dz = (z2 - z1) / delta;
+
+        return vec3(dx, dy, dz);
+      }
+
+      vec2 cnoise2(in vec3 p) {
+        vec2 d = dnoise2(p);
+        return vec2(d.y, -d.x);
+      }
+
+      vec3 cnoise3(in vec3 p) {
+        vec3 d = dnoise3(p);
+        return vec3(d.z - d.y, d.x - d.z, d.y - d.x);
       }
 
       void main() {
         // Get the current position in the position map
-        vec3 current = texture(previousFrame, interpolatedUV);
+        //vec3 current = texture(previousFrame, interpolatedLocalPosition.xy / vec2(size)).xyz;
 
         // Add the curl to it
-        current += curlNoise(interpolatedLocalPosition + current);
+        //current += vec3(cnoise2(interpolatedLocalPosition + current), 0.0);
 
-        gl_FragColor = vec4(current, 1.0);
+        //gl_FragColor = vec4(current, 1.0);
+        gl_FragColor = vec4((cnoise2(interpolatedPosition / 400.0) + 1.0) / 2.0, 0.0, 1.0);
+        //gl_FragColor = vec4(interpolatedLocalPosition / 400.0, 1.0);
       }
     </script>
 
