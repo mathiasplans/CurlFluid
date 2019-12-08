@@ -5,23 +5,19 @@ var noiseFrag = `
  * Calculates derivative of the noise (on 2D slice)
  */
 vec2 dnoise2(in vec3 p) {
-  // Coordinates
-  vec2 coord = p.xy;
-
   // Delta
   // float delta = 1.0 / 100000.0;
-
-  float o = noise(coord);
+  float o = noise(p);
 
   // Dn/Dx
   float x1 = o;
-  float x2 = noise(coord + dFdx(coord));
-  float dx = (x2 - x1) / dFdx(coord).x;
+  float x2 = noise(p + dFdx(p));
+  float dx = (x2 - x1) / dFdx(p).x;
 
   // Dn/Dy
   float y1 = o;
-  float y2 = noise(coord + dFdy(coord));
-  float dy = (y2 - y1) / dFdy(coord).y;
+  float y2 = noise(p + dFdy(p));
+  float dy = (y2 - y1) / dFdy(p).y;
 
   // // Dn/Dx
   // float dx = dFdx(noise(coord)) / dFdx(coord).x;
@@ -59,7 +55,7 @@ vec3 dnoise3(in vec3 p) {
 
 vec2 cnoise2(in vec3 p) {
   vec2 d = dnoise2(p);
-  return vec2(d.y, -d.x) / 20.0;
+  return vec2(d.y, -d.x);
 }
 
 vec3 cnoise3(in vec3 p) {

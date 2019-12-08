@@ -1,5 +1,7 @@
 class Plane {
-  constructor(size) {
+  constructor(renderer, size, prescaler = 1) {
+    this.renderer = renderer;
+
     // Create Vortexer
     var vortexer = new Vortexer(size);
     this.vortexer = vortexer;
@@ -43,26 +45,32 @@ class Plane {
     this.mesh = plane;
 
     // Internal state
+    this.prescaler = prescaler;
     this.parity = 0;
+    this.v = 0;
   }
 
-  update(renderer) {
-    // Get the parity
-    this.parity = ++this.parity & 1;
+  update() {
+    if (this.v == 0) {
+      // Get the parity
+      this.parity = ++this.parity & 1;
 
-    // Swap between the two textures. Add to the time
-    this.vortexer.material.uniforms.time.value += 0.005;
-    this.vortexer.material.uniforms.previousFrame.value = this.vortexer.target[1 - this.parity].texture;
+      // Swap between the two textures. Add to the time
+      this.vortexer.material.uniforms.time.value += 0.01;
+      this.vortexer.material.uniforms.previousFrame.value = this.vortexer.target[1 - this.parity].texture;
 
-    // Render the vortecies
-    renderer.setRenderTarget(this.vortexer.target[this.parity]);
-    renderer.render(this.vortexer.scene, this.vortexer.camera);
+      // Render the vortecies
+      this.renderer.setRenderTarget(this.vortexer.target[this.parity]);
+      this.renderer.render(this.vortexer.scene, this.vortexer.camera);
 
-    // Now that we have the position map, we can move the particles according to it
-    this.material.uniforms.target.value = this.vortexer.target[this.parity].texture;
+      // Now that we have the position map, we can move the particles according to it
+      this.material.uniforms.target.value = this.vortexer.target[this.parity].texture;
 
-    // Render
-    renderer.setRenderTarget(null);
-    renderer.render(this.scene, this.camera);
+      // Render
+      this.renderer.setRenderTarget(null);
+      this.renderer.render(this.scene, this.camera);
+    }
+
+    this.v = ++this.v % this.prescaler;
   }
 }

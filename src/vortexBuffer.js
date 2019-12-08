@@ -6,6 +6,18 @@ class Vortexer {
       new THREE.WebGLRenderTarget(size, size)
     ];
 
+    // Set to repeat wrapping
+    this.target[0].texture.wrapS = THREE.RepeatWrapping;
+    this.target[0].texture.wrapT = THREE.RepeatWrapping;
+    this.target[1].texture.wrapS = THREE.RepeatWrapping;
+    this.target[1].texture.wrapT = THREE.RepeatWrapping;
+
+    // Don't need those buffers
+    this.target[0].depthBuffer = false;
+    this.target[0].depthBuffer = false;
+    this.target[1].stencilBuffer = false;
+    this.target[1].stencilBuffer = false;
+
     // Particle position calculation
     var material = new THREE.ShaderMaterial({
       uniforms: {
@@ -19,6 +31,18 @@ class Vortexer {
 
         previousFrame: {
           value: this.target[1].texture
+        },
+
+        initialFrame: {
+          value: this.target[0].texture
+        },
+
+        velocityPrescaler: {
+          value: 140.0
+        },
+
+        blendScaler: {
+          value: 0.00
         }
       },
 

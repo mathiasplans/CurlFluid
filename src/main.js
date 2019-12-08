@@ -1,4 +1,4 @@
-var size = 800;
+var size = 1024;
 
 var renderer;
 var controller;
@@ -23,7 +23,7 @@ function onLoad() {
   renderer.setSize(size, size);
 
   // Create Plane vortecies
-  controller = new Plane(size);
+  controller = new Plane(renderer, size, 5);
 
   draw();
 }
@@ -31,8 +31,20 @@ function onLoad() {
 var parity = 0;
 var x = 0;
 
+var initFrame = true;
+
+var initial;
+
 function draw() {
   requestAnimationFrame(draw);
 
-  controller.update(renderer);
+  if (initFrame) {
+    // Get the initial picture
+    initial = createStripes(renderer, size, 0.01);
+    controller.vortexer.material.uniforms.initialFrame.value = initial;
+    initFrame = false;
+  }
+
+  else
+    controller.update();
 }
