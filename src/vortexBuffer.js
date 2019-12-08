@@ -1,9 +1,9 @@
 class Vortexer {
-  constructor (size) {
+  constructor (sizex, sizey) {
     // Internal state
     this.target = [
-      new THREE.WebGLRenderTarget(size, size),
-      new THREE.WebGLRenderTarget(size, size)
+      new THREE.WebGLRenderTarget(sizex, sizey),
+      new THREE.WebGLRenderTarget(sizex, sizey)
     ];
 
     // Set to repeat wrapping
@@ -25,8 +25,12 @@ class Vortexer {
           value: 0
         },
 
-        size: {
-          value: size
+        sizex: {
+          value: sizex
+        },
+
+        sizey: {
+          value: sizey
         },
 
         previousFrame: {
@@ -53,12 +57,12 @@ class Vortexer {
     // Preprocess
     setPre(material);
 
-    var geometry = new THREE.PlaneBufferGeometry(size, size);
+    var geometry = new THREE.PlaneBufferGeometry(sizex, sizey);
 
     var buffer = new THREE.Mesh(geometry, material);
 
     // Camera
-    var cam = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 0.1, 10);
+    var cam = new THREE.OrthographicCamera(-sizex / 2, sizex / 2, sizey / 2, -sizey / 2, 0.1, 10);
     cam.position.set(0, 0, 4);
     cam.lookAt(buffer.position);
     cam.up.set(0, 1, 0);
@@ -67,7 +71,8 @@ class Vortexer {
     s.add(buffer);
     s.add(cam);
 
-    this.size = size;
+    this.sizex = sizex;
+    this.sizet = sizey;
     this.scene = s;
     this.camera = cam;
     this.material = material;

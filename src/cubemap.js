@@ -1,17 +1,21 @@
-class Plane {
+class CubeMap {
   constructor(renderer, size, prescaler = 1) {
-    renderer.setSize(size, size);
+    renderer.setSize(6 * size, size);
 
     this.renderer = renderer;
 
     // Create Vortexer
-    var vortexer = new Vortexer(size);
+    var vortexer = new Vortexer(6 * size, size);
     this.vortexer = vortexer;
 
     // Particle position calculation
     var material = new THREE.ShaderMaterial({
       uniforms: {
-        size: {
+        sizex: {
+          value: 6 * size
+        },
+
+        sizey: {
           value: size
         },
 
@@ -26,12 +30,12 @@ class Plane {
     // Preprocess
     setPre(material);
 
-    var geometry = new THREE.PlaneBufferGeometry(size, size);
+    var geometry = new THREE.PlaneBufferGeometry(6 * size, size);
 
     var plane = new THREE.Mesh(geometry, material);
 
     // Camera
-    var cam = new THREE.OrthographicCamera(-size / 2, size / 2, size / 2, -size / 2, 0.1, 10);
+    var cam = new THREE.OrthographicCamera(-size / 2 * 6, size / 2 * 6, size / 2, -size / 2, 0.1, 10);
     cam.position.set(0, 0, 4);
     cam.lookAt(plane.position);
     cam.up.set(0, 1, 0);
@@ -40,7 +44,8 @@ class Plane {
     s.add(plane);
     s.add(cam);
 
-    this.size = size;
+    this.sizex = 6 * size;
+    this.sizey = size;
     this.scene = s;
     this.camera = cam;
     this.material = material;

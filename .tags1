@@ -4,24 +4,3 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-html	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^<html>$/;"	function	line:2
-head	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^  <head>$/;"	function	line:3
-title	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <title>Computer Graphics - Basic II - Task 4.1 - Procedural Generation<\/title>$/;"	function	line:4
-meta	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <meta charset="UTF-8">$/;"	function	line:5
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="lib\/WebGL.js"><\/script>$/;"	function	line:7
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="lib\/three.r108.js"><\/script>$/;"	function	line:8
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/noise.comp"><\/script>$/;"	function	line:11
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/noise.frag"><\/script>$/;"	function	line:12
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/vortex.vert"><\/script>$/;"	function	line:13
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/vortex.frag"><\/script>$/;"	function	line:14
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/printer.vert"><\/script>$/;"	function	line:15
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/printer.frag"><\/script>$/;"	function	line:16
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaders\/stripes.frag"><\/script>$/;"	function	line:17
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/initial.js"><\/script>$/;"	function	line:20
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/shaderPreproc.js"><\/script>$/;"	function	line:21
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/vortexBuffer.js"><\/script>$/;"	function	line:22
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/plane.js"><\/script>$/;"	function	line:23
-script	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <script type="text\/javascript" src="src\/main.js"><\/script>$/;"	function	line:24
-body	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^  <body onload="onLoad()">$/;"	function	line:27
-div	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <div id="myCanvasContainer"><\/div>$/;"	function	line:28
-canvas	C:\Users\Mathias\Documents\CG\CG19\curlfluid\index.html	/^    <canvas id="canvas"><\/canvas>$/;"	function	line:29

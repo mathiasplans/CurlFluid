@@ -20,6 +20,8 @@ void main() {
   vec2 shift = cnoise2(5.0 * realPosition + vec3(time, 0.0, time / 30.0)) / velocityPrescaler;
   vec2 uvPosition = realPosition.xy + shift;
 
+  // Cube face stiching
+
   vec3 color = texture(previousFrame, uvPosition).xyz;
   vec3 inplace = texture(previousFrame, realPosition.xy).xyz;
 
