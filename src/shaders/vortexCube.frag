@@ -60,6 +60,7 @@ void main() {
   // TODO: Shift and uvCoord also have to be calculated on the sphere. Otherwise this will ruin everything
   //spherePosition = normalize(spherePosition);
 
+  // TODO: Use 2D noise!
   vec3 shift = cnoise3(5.0 * spherePosition + vec3(time, time, time) / 30.0) / velocityPrescaler;
   vec2 uvPosition = (facePosition + shift).xy;
   uvPosition.x /= 6.0;
