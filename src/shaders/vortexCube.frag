@@ -57,12 +57,15 @@ void main() {
   }
 
   // Now if we normalize the position, every point should be at the same distance from the center of the sphere
-  spherePosition = normalize(spherePosition);
+  // TODO: Shift and uvCoord also have to be calculated on the sphere. Otherwise this will ruin everything
+  //spherePosition = normalize(spherePosition);
 
-  vec3 shift = cnoise3(5.0 * spherePosition + vec3(time, 0.0, time / 30.0)) / velocityPrescaler;
+  vec3 shift = cnoise3(5.0 * spherePosition + vec3(time, time, time) / 30.0) / velocityPrescaler;
   vec2 uvPosition = (facePosition + shift).xy;
   uvPosition.x /= 6.0;
   uvPosition += vec2(normalFace, 0.0);
+
+  // TODO: Change the uvCoords if in another cubeFace (0 > and 1 <)
 
   vec3 color = texture(previousFrame, uvPosition).xyz;
   vec3 inplace = texture(previousFrame, realPosition.xy).xyz;
@@ -78,6 +81,6 @@ void main() {
     color *= 1.0 + (0.1 - realPosition.y) / sizey;
 
   gl_FragColor = vec4(mix(color, inplace, blendScaler), 1.0);
-  //gl_FragColor = vec4(vec3(spherePosition), 1.0);
+  // gl_FragColor = vec4(vec3(spherePosition), 1.0);
 }
 `
