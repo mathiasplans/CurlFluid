@@ -51,7 +51,7 @@ class Vortexer {
       },
 
       vertexShader: vortexVert,
-      fragmentShader: vortexFrag
+      fragmentShader: vortexCubeFrag
     });
 
     // Preprocess
