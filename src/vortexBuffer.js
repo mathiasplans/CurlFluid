@@ -18,6 +18,11 @@ class Vortexer {
     this.target[1].stencilBuffer = false;
     this.target[1].stencilBuffer = false;
 
+    //this.target[0].magFilter = THREE.NearestFilter;
+    //this.target[0].minFilter = THREE.NearestFilter;
+    //this.target[1].magFilter = THREE.NearestFilter;
+    //this.target[1].minFilter = THREE.NearestFilter;
+
     // Particle position calculation
     var material = new THREE.ShaderMaterial({
       uniforms: {

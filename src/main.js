@@ -40,7 +40,7 @@ function draw() {
 
   if (initFrame) {
     // Get the initial picture
-    initial = createStripes(renderer, size, 0.05);
+    initial = createStripes(renderer, size, 0.2);
     controller.vortexer.material.uniforms.initialFrame.value = initial;
     initFrame = false;
   }
