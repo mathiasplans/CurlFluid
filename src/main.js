@@ -41,7 +41,12 @@ function draw() {
   if (initFrame) {
     // Get the initial picture
     initial = createStripes(renderer, size, 0.2);
-    controller.vortexer.material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[0].material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[1].material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[2].material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[3].material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[4].material.uniforms.initialFrame.value = initial;
+    controller.vortexer.cubeFaces[5].material.uniforms.initialFrame.value = initial;
     initFrame = false;
   }
 

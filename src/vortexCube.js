@@ -1,100 +1,80 @@
 class VortexerCube {
-  constructor (sizex, sizey) {
+  constructor(size) {
     // Internal state
-    this.target = [
+    this.targets = [
       [
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size)
       ],
       [
-        new THREE.WebGLRenderTarget(sizex, sizey)
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
-        new THREE.WebGLRenderTarget(sizex, sizey),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size),
+        new THREE.WebGLRenderTarget(size, size)
+      ]
+    ];
+
+    this.textures = [
+      [
+        this.targets[0][0].texture,
+        this.targets[0][1].texture,
+        this.targets[0][2].texture,
+        this.targets[0][3].texture,
+        this.targets[0][4].texture,
+        this.targets[0][5].texture
+      ],
+      [
+        this.targets[1][0].texture,
+        this.targets[1][1].texture,
+        this.targets[1][2].texture,
+        this.targets[1][3].texture,
+        this.targets[1][4].texture,
+        this.targets[1][5].texture
       ]
     ];
 
     // Set to repeat wrapping
-    this.target[0].texture.wrapS = THREE.RepeatWrapping;
-    this.target[0].texture.wrapT = THREE.RepeatWrapping;
-    this.target[1].texture.wrapS = THREE.RepeatWrapping;
-    this.target[1].texture.wrapT = THREE.RepeatWrapping;
 
-    // Don't need those buffers
-    this.target[0].depthBuffer = false;
-    this.target[0].depthBuffer = false;
-    this.target[1].stencilBuffer = false;
-    this.target[1].stencilBuffer = false;
+    for (var i = 0; i < 6; ++i) {
+      this.targets[0][i].texture.wrapS = THREE.RepeatWrapping;
+      this.targets[0][i].texture.wrapT = THREE.RepeatWrapping;
+      this.targets[1][i].texture.wrapS = THREE.RepeatWrapping;
+      this.targets[1][i].texture.wrapT = THREE.RepeatWrapping;
+      // this.targets[0][i].texture.magFilter = THREE.NearestFilter;
+      // this.targets[0][i].texture.minFilter = THREE.NearestFilter;
+      // this.targets[1][i].texture.magFilter = THREE.NearestFilter;
+      // this.targets[1][i].texture.minFilter = THREE.NearestFilter;
 
-    //this.target[0].magFilter = THREE.NearestFilter;
-    //this.target[0].minFilter = THREE.NearestFilter;
-    //this.target[1].magFilter = THREE.NearestFilter;
-    //this.target[1].minFilter = THREE.NearestFilter;
+        // Don't need those buffers
+      this.targets[0][i].depthBuffer = false;
+      this.targets[0][i].depthBuffer = false;
+      this.targets[1][i].stencilBuffer = false;
+      this.targets[1][i].stencilBuffer = false;
+    }
 
-    // Particle position calculation
-    var material = new THREE.ShaderMaterial({
-      uniforms: {
-        time: {
-          value: 0
-        },
 
-        sizex: {
-          value: sizex
-        },
+    // Create six faces
+    this.cubeFaces = [
+      new vortexFace(1, size, this.textures),
+      new vortexFace(2, size, this.textures),
+      new vortexFace(3, size, this.textures),
+      new vortexFace(4, size, this.textures),
+      new vortexFace(5, size, this.textures),
+      new vortexFace(6, size, this.textures),
+    ];
+  }
 
-        sizey: {
-          value: sizey
-        },
-
-        previousFrame: {
-          value: this.target[1].texture
-        },
-
-        initialFrame: {
-          value: this.target[0].texture
-        },
-
-        velocityPrescaler: {
-          value: 140.0
-        },
-
-        blendScaler: {
-          value: 0.00
-        }
-      },
-
-      vertexShader: vortexVert,
-      fragmentShader: vortexCubeFrag
-    });
-
-    // Preprocess
-    setPre(material);
-
-    var geometry = new THREE.PlaneBufferGeometry(sizex, sizey);
-
-    var buffer = new THREE.Mesh(geometry, material);
-
-    // Camera
-    var cam = new THREE.OrthographicCamera(-sizex / 2, sizex / 2, sizey / 2, -sizey / 2, 0.1, 10);
-    cam.position.set(0, 0, 4);
-    cam.lookAt(buffer.position);
-    cam.up.set(0, 1, 0);
-
-    var s = new THREE.Scene();
-    s.add(buffer);
-    s.add(cam);
-
-    this.sizex = sizex;
-    this.sizet = sizey;
-    this.scene = s;
-    this.camera = cam;
-    this.material = material;
-    this.mesh = buffer;
+  update(renderer, parity) {
+    for (var i = 0; i < 6; ++i) {
+      this.cubeFaces[i].update(1 - parity);
+      renderer.setRenderTarget(this.targets[parity][i]);
+      renderer.render(this.cubeFaces[i].scene, this.cubeFaces[i].camera);
+    }
   }
 }

@@ -266,7 +266,7 @@ void main() {
     }
   }
 
-  uvPosition = faceToUV(uvFace, normalFace);
+  uvPosition = faceToUV(uvFace, normalFace) + 0.25 / vec2(sizex, sizey);
 
   vec3 color = texture(previousFrame, uvPosition).xyz;
   vec3 inplace = texture(previousFrame, realPosition.xy).xyz;
@@ -274,12 +274,12 @@ void main() {
   // If there is no color, set initial value from initialFrame
   if (color == vec3(0.0, 0.0, 0.0)) {
     color = texture(initialFrame, realPosition.xy).xyz;
-/*    color = vec3(normalFace, 1.0 - normalFace, normalFace * normalFace);
+    color = vec3(normalFace, 1.0 - normalFace, normalFace * normalFace);
     if (face == 5.0)
       color = vec3(1.0, 0.0, 0.0);
 
     if (face == 6.0)
-      color = vec3(0.0, 0.0, 1.0);*/
+      color = vec3(0.0, 0.0, 1.0);
     inplace = color;
   }
 

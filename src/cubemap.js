@@ -5,7 +5,7 @@ class CubeMap {
     this.renderer = renderer;
 
     // Create Vortexer
-    var vortexer = new Vortexer(6 * size, size);
+    var vortexer = new VortexerCube(size);
     this.vortexer = vortexer;
 
     // Particle position calculation
@@ -19,12 +19,37 @@ class CubeMap {
           value: size
         },
 
-        target: {
-          value: this.vortexer.target[0].texture
+        faces: {
+          value: this.vortexer.textures[1]
+        },
+
+        face1: {
+          value: this.vortexer.textures[1][0]
+        },
+
+        face2: {
+          value: this.vortexer.textures[1][0]
+        },
+
+        face3: {
+          value: this.vortexer.textures[1][0]
+        },
+
+        face4: {
+          value: this.vortexer.textures[1][0]
+        },
+
+        face5: {
+          value: this.vortexer.textures[1][0]
+        },
+
+        face6: {
+          value: this.vortexer.textures[1][0]
         }
       },
+
       vertexShader: printerVert,
-      fragmentShader: printerFrag
+      fragmentShader: printerCubeFrag
     });
 
     // Preprocess
@@ -63,15 +88,17 @@ class CubeMap {
       this.parity = ++this.parity & 1;
 
       // Swap between the two textures. Add to the time
-      this.vortexer.material.uniforms.time.value += 0.01;
-      this.vortexer.material.uniforms.previousFrame.value = this.vortexer.target[1 - this.parity].texture;
-
-      // Render the vortecies
-      this.renderer.setRenderTarget(this.vortexer.target[this.parity]);
-      this.renderer.render(this.vortexer.scene, this.vortexer.camera);
+      this.vortexer.update(renderer, this.parity)
 
       // Now that we have the position map, we can move the particles according to it
-      this.material.uniforms.target.value = this.vortexer.target[this.parity].texture;
+      this.material.uniforms.faces.value = this.vortexer.textures[this.parity];
+
+      this.material.uniforms.face1.value = this.vortexer.targets[this.parity][0].texture;
+      this.material.uniforms.face2.value = this.vortexer.targets[this.parity][1].texture;
+      this.material.uniforms.face3.value = this.vortexer.targets[this.parity][2].texture;
+      this.material.uniforms.face4.value = this.vortexer.targets[this.parity][3].texture;
+      this.material.uniforms.face5.value = this.vortexer.targets[this.parity][4].texture;
+      this.material.uniforms.face6.value = this.vortexer.targets[this.parity][5].texture;
 
       // Render
       this.renderer.setRenderTarget(null);
